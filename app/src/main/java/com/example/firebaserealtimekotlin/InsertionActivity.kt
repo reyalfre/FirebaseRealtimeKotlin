@@ -1,12 +1,24 @@
 package com.example.firebaserealtimekotlin
 
 import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 class InsertionActivity : AppCompatActivity() {
+
+    private lateinit var etEmpName: EditText
+    private lateinit var etEmpAge: EditText
+    private lateinit var etEmpSalary: EditText
+    private lateinit var btnSaveData: Button
+
+    private lateinit var dbRef: DatabaseReference
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -16,5 +28,52 @@ class InsertionActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        etEmpName = findViewById(R.id.etEmpName)
+        etEmpAge = findViewById(R.id.etEmpAge)
+        etEmpSalary = findViewById(R.id.etEmpSalary)
+        btnSaveData = findViewById(R.id.btnSave)
+
+        dbRef = FirebaseDatabase.getInstance().getReference("Employees")
+
+        btnSaveData.setOnClickListener {
+            saveEmployeeData()
+        }
+    }
+
+    private fun saveEmployeeData() {
+
+        //getting values
+        val empName = etEmpName.text.toString()
+        val empAge = etEmpAge.text.toString()
+        val empSalary = etEmpSalary.text.toString()
+
+        if (empName.isEmpty()) {
+            etEmpName.error = "Please enter name"
+        }
+        if (empAge.isEmpty()) {
+            etEmpAge.error = "Please enter age"
+        }
+        if (empSalary.isEmpty()) {
+            etEmpSalary.error = "Please enter salary"
+        }
+
+        val empId = dbRef.push().key!!
+
+        val employee = EmployeeModel(empId, empName, empAge, empSalary)
+
+        dbRef.child(empId).setValue(employee)
+            .addOnCompleteListener {
+                Toast.makeText(this, "Data inserted successfully", Toast.LENGTH_LONG).show()
+
+                etEmpName.text.clear()
+                etEmpAge.text.clear()
+                etEmpSalary.text.clear()
+
+
+            }.addOnFailureListener { err ->
+                Toast.makeText(this, "Error ${err.message}", Toast.LENGTH_LONG).show()
+            }
+
+
     }
 }
