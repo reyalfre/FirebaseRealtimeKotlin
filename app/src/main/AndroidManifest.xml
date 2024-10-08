@@ -13,6 +13,12 @@
         android:theme="@style/Theme.FirebaseRealtimeKotlin"
         tools:targetApi="31">
         <activity
+            android:name=".FetchingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".InsertionActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false">
             <intent-filter>
